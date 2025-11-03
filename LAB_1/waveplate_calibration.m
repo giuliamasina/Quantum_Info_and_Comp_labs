@@ -3,7 +3,7 @@
 % starting values
 I0 = max(WaveplateA.coincidences) - min(WaveplateA.coincidences);
 [~, idx] = min(WaveplateA.coincidences);
-theta0 = WaveplateA.alpha(idx);
+theta0 = WaveplateA.angles(idx);
 offset = min(WaveplateA.coincidences)
 
 % Define custom fit type (Malus' Law)
