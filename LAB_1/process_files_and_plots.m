@@ -36,34 +36,191 @@
     coincidence_counts = final_results.Coincidences;
     num_counts = length(coincidence_counts);
 
+%     for i = 1:4:num_counts
+%         block_coincidences = coincidence_counts(i : i+3);
+%         % Map the four counts (N_pp, N_pm, N_mp, N_mm)
+%         Npp = block_coincidences(1); 
+%         Npm = block_coincidences(2); 
+%         Nmp = block_coincidences(3); 
+%         Nmm = block_coincidences(4); 
+%         N_total = Npp + Npm + Nmp + Nmm;
+% 
+%         % CHSH parameters
+%         E_ab   = (Npp + Nmm - Nmp - Npm) / N_total;
+%         E_abp  = (Npp + Nmp - Npm - Nmm) / N_total; 
+%         E_apb  = (Npp + Npm - Nmp - Nmm) / N_total;
+%         E_apbp = (Npp + Nmm - Nmp - Npm) / N_total;
+%         E_values = [E_ab, E_abp, E_apb, E_apbp];
+% 
+%         % errors for each coincidence count (poisson errors)
+%         delta_Npp = sqrt(Npp);
+%         delta_Npm = sqrt(Npm);
+%         delta_Nmp = sqrt(Nmp);
+%         delta_Nmm = sqrt(Nmm);
+%         delta_N = sqrt(block_coincidences);
+%         % CHSH error propagation
+%         delta_E_ab = (2 / N_total) * sqrt( (Npp*Nmm*delta_Npp^2) + (Nmp*Npm*delta_Npm^2) ) / N_total;
+% 
+%         delta_E_values = sqrt( (1 - E_values.^2) / N_total );
+%         S = E_ab + E_abp + E_apb - E_apbp;
+%         delta_S = sqrt(sum(delta_E_values.^2));
+%         S_values = [S_values; S];
+%         dS_values = [dS_values; delta_S];
+%     end
+
+
+
+
+%     for i = 1:4:num_counts
+%         % Extract the four coincidence counts for the current block
+%         % MATLAB indexing is 1-based, and inclusive.
+%         block_coincidences = coincidence_counts(i : i+3);
+%         
+%         % Check if the block has exactly 4 elements
+%         if length(block_coincidences) < 4
+%             warning('Incomplete block found starting at index %d. Skipping.', i);
+%             continue;
+%         end
+%         
+%         % Map the four counts (N++: N(alpha, beta), N+-: N(alpha, beta'))
+%         % Note: The index mapping in your Python code seems unusual for E_alpha_beta_prime
+%         % and E_alpha_prime_beta, but we replicate the indices as written.
+%         Npp = block_coincidences(1); % N(a, b)
+%         Npm = block_coincidences(2); % N(a, b')
+%         Nmp = block_coincidences(3); % N(a', b)
+%         Nmm = block_coincidences(4); % N(a', b')
+%         
+%         % Check for zero total count to prevent division by zero
+%         N_total = Npp + Nmm + Nmp + Npm;
+%         if N_total == 0
+%             warning('Total count in block starting at index %d is zero. Skipping.', i);
+%             continue;
+%         end
+%         
+%         % 3. Compute the correlation values (E)
+%         % The MATLAB code replicates the formulas as they appear in the Python snippet.
+%         
+%         % Note on E_alpha_beta and E_alpha_prime_beta: they use the same formula
+%         % in your original code, which is highly unusual for a standard CHSH calculation.
+%         % We maintain the exact computation:
+%         E_alpha_beta         = (Npp + Nmm - Nmp - Npm) / N_total;
+%         E_alpha_beta_prime   = (Npp - Npm + Nmp - Nmm) / N_total; % N(a, b')
+%         E_alpha_prime_beta   = (Npp + Nmm - Nmp - Npm) / N_total; % N(a', b) - SAME AS E_alpha_beta
+%         E_alpha_prime_beta_prime = (Npp - Npm - Nmp - Nmm) / N_total; % N(a', b')
+%         
+%         % 4. Compute the errors for each coincidence count (Poisson errors: delta_N = sqrt(N))
+%         delta_Npp = sqrt(Npp);
+%         delta_Npm = sqrt(Npm);
+%         delta_Nmp = sqrt(Nmp);
+%         delta_Nmm = sqrt(Nmm);
+%     
+%         % Sum of squared errors for convenience in the delta_E formula
+%         delta_N_sq_sum = delta_Npp.^2 + delta_Npm.^2 + delta_Nmp.^2 + delta_Nmm.^2;
+%     
+%         % 5. Compute the errors for each correlation value (delta_E)
+%         % NOTE: The error propagation formula for E_alpha_beta and E_alpha_prime_beta
+%         % is incorrect in the original Python code as the numerator coefficients are wrong
+%         % for the numerator Npp+Nmm-Nmp-Npm. We replicate the Python formula exactly.
+%         
+%         % The general form for error propagation (first term) is:
+%         % delta_E = sqrt( sum_i [ (dE/dN_i * delta_N_i)^2 ] )
+%         % The Python code uses a simplified but often inaccurate formula: |E| * sqrt( (sum_i delta_N_i^2) / N_total^2 )
+%         % We replicate the Python formula using MATLAB's built-in functions:
+%         
+%         common_error_term = sqrt(delta_N_sq_sum / N_total^2);
+%         
+%         delta_E_alpha_beta         = abs(E_alpha_beta)         * common_error_term;
+%         delta_E_alpha_beta_prime   = abs(E_alpha_beta_prime)   * common_error_term;
+%         delta_E_alpha_prime_beta   = abs(E_alpha_prime_beta)   * common_error_term;
+%         delta_E_alpha_prime_beta_prime = abs(E_alpha_prime_beta_prime) * common_error_term;
+%         
+%         % 6. Compute the value of S
+%         S = E_alpha_beta + E_alpha_beta_prime + E_alpha_prime_beta - E_alpha_prime_beta_prime;
+%         
+%         % 7. Compute the error in the final CHSH parameter (delta_S)
+%         % Standard error propagation for sum/difference of uncorrelated variables:
+%         % delta_S = sqrt( sum_i (delta_E_i)^2 )
+%         delta_S_sq_sum = delta_E_alpha_beta.^2 + delta_E_alpha_beta_prime.^2 + ...
+%                          delta_E_alpha_prime_beta.^2 + delta_E_alpha_prime_beta_prime.^2;
+%         delta_S = sqrt(delta_S_sq_sum);
+%         
+%         % 8. Store the computed values
+%         S_values = [S_values; S]; % Append S
+%         dS_values = [dS_values; delta_S]; % Append delta_S
+%     end
+
+
+
     for i = 1:4:num_counts
         block_coincidences = coincidence_counts(i : i+3);
-        % Map the four counts (N_pp, N_pm, N_mp, N_mm)
+        
+        if length(block_coincidences) < 4
+            warning('Incomplete block found starting at index %d. Skipping.', i);
+            continue;
+        end
+        
         Npp = block_coincidences(1); 
         Npm = block_coincidences(2); 
         Nmp = block_coincidences(3); 
         Nmm = block_coincidences(4); 
-        N_total = Npp + Npm + Nmp + Nmm;
-
-        % CHSH parameters
-        E_ab   = (Npp + Nmm - Nmp - Npm) / N_total;
-        E_abp  = (Npp + Nmp - Npm - Nmm) / N_total; 
-        E_apb  = (Npp + Npm - Nmp - Nmm) / N_total;
-        E_apbp = (Npp + Nmm - Nmp - Npm) / N_total;
-        E_values = [E_ab, E_abp, E_apb, E_apbp];
-
-        % errors for each coincidence count (poisson errors)
-        delta_Npp = sqrt(Npp);
-        delta_Npm = sqrt(Npm);
-        delta_Nmp = sqrt(Nmp);
-        delta_Nmm = sqrt(Nmm);
-        delta_N = sqrt(block_coincidences);
-        % CHSH error propagation
-        delta_E_ab = (2 / N_total) * sqrt( (Npp*Nmm*delta_Npp^2) + (Nmp*Npm*delta_Npm^2) ) / N_total;
-
-        delta_E_values = sqrt( (1 - E_values.^2) / N_total );
-        S = E_ab + E_abp + E_apb - E_apbp;
-        delta_S = sqrt(sum(delta_E_values.^2));
+        N_i = block_coincidences; % Vector of [Npp, Npm, Nmp, Nmm]
+        
+        N_total = sum(N_i);
+        if N_total == 0
+            warning('Total count in block starting at index %d is zero. Skipping.', i);
+            continue;
+        end
+        
+        % Define the coefficients for the numerator of each E term: [dE/dNpp, dE/dNpm, dE/dNmp, dE/dNmm]
+        % Coefficients U_ab, U_abp, U_apb, U_apbp
+        
+        U_ab_coeffs   = [ 1, -1, -1,  1]; % (Npp - Npm - Nmp + Nmm)
+        U_abp_coeffs  = [ 1, -1,  1, -1]; % (Npp - Npm + Nmp - Nmm)
+        U_apb_coeffs  = [ 1,  1, -1, -1]; % (Npp + Npm - Nmp - Nmm)
+        U_apbp_coeffs = [ 1,  1,  1,  1]; % (Npp + Npm + Nmp + Nmm) -- NOTE: This is N_total
+        
+        % --- Calculate E values ---
+        U_ab_num   = sum(U_ab_coeffs   .* N_i');
+        U_abp_num  = sum(U_abp_coeffs  .* N_i');
+        U_apb_num  = sum(U_apb_coeffs  .* N_i');
+        U_apbp_num = sum(U_apbp_coeffs .* N_i');
+        
+        E_ab   = U_ab_num   / N_total;
+        E_abp  = U_abp_num  / N_total;
+        E_apb  = U_apb_num  / N_total;
+        E_apbp = U_apbp_num / N_total;
+    
+        % --- Calculate Delta E (Rigorous Gaussian Propagation) ---
+        
+        % 1. Calculate the partial derivatives (dE/dN_i) for each E term
+        % General form of partial derivative vector for E = U/V: (1/V^2) * [ dU/dN_i * V - U ]
+        
+        % For E_ab:
+        dE_ab_dN = ( (U_ab_coeffs * N_total) - U_ab_num ) / N_total^2;
+        % For E_abp:
+        dE_abp_dN = ( (U_abp_coeffs * N_total) - U_abp_num ) / N_total^2;
+        % For E_apb:
+        dE_apb_dN = ( (U_apb_coeffs * N_total) - U_apb_num ) / N_total^2;
+        % For E_apbp:
+        dE_apbp_dN = ( (U_apbp_coeffs * N_total) - U_apbp_num ) / N_total^2;
+        
+        
+        % 2. Apply Gaussian Error Propagation: Delta E = sqrt( sum( (dE/dN_i)^2 * N_i ) )
+        
+        delta_E_ab = sqrt( sum( (dE_ab_dN.^2) .* N_i' ) );
+        delta_E_abp = sqrt( sum( (dE_abp_dN.^2) .* N_i' ) );
+        delta_E_apb = sqrt( sum( (dE_apb_dN.^2) .* N_i' ) );
+        delta_E_apbp = sqrt( sum( (dE_apbp_dN.^2) .* N_i' ) );
+        
+        E_delta_values = [delta_E_ab, delta_E_abp, delta_E_apb, delta_E_apbp];
+        
+        % 3. Compute S and Delta S
+        S = E_ab + E_abp + E_apb - E_apbp; % CHSH Parameter
+        
+        % Delta S is the quadrature sum of the Delta E's (standard error propagation for sum/difference)
+        delta_S = sqrt(sum(E_delta_values.^2));
+        
+        % Store the computed values
         S_values = [S_values; S];
         dS_values = [dS_values; delta_S];
     end
