@@ -1,4 +1,11 @@
 
+coinc_phi_p = Cartel2.coinc_phi_p;
+coinc_phi_m = Cartel2.coinc_phi_m;
+coinc_dec = Cartel2.coinc_dec;
+
+N_values = [coinc_phi_m, coinc_phi_p, coinc_dec];
+N_names = {'coinc_phi_m','coinc_phi_p','coinc_dec'};
+
 waveplates_configuration = [
     0, 0, 0, 0;
     0, 0, pi/4, 0;
@@ -103,7 +110,6 @@ gamma_16 = 0.5 * [1, 0, 0, 0;
 % --- Collect the matrices into a cell array ---
 
 % In MATLAB, a "list" of matrices/arrays (where all elements aren't the same size) 
-% is best stored in a **cell array** using curly braces {}.
 gammas = {gamma_1, gamma_2, gamma_3, gamma_4, gamma_5, gamma_6, ...
           gamma_7, gamma_8, gamma_9, gamma_10, gamma_11, gamma_12, ...
           gamma_13, gamma_14, gamma_15, gamma_16};
@@ -134,3 +140,44 @@ for nu = 1:num_configurations
     psi_states(:, nu) = psi; 
 end
 
+num_sets = size(N_values, 2); % Number of columns is the number of data sets
+rho_lin_inv_matrices = cell(1, num_sets);
+
+for k = 1:num_sets
+    % Extract the current N vector (column k)
+    N = N_values(:, k); 
+    
+    % Get the current name
+    N_name = N_names{k};
+    
+    % 1. Determine density matrix by linear inversion
+    rho_lin_inv = compute_rho_lin_inv(N, psi_states, gammas);
+    
+    % 2. Check for physicality of the density matrix
+    is_physical = is_density_matrix(rho_lin_inv);
+    
+    % 3. Display the result
+    if is_physical
+        fprintf('The density matrix for %s is physical.\n', N_name);
+    else
+        fprintf('The density matrix for %s is NOT physical.\n', N_name);
+    end
+    
+    % 4. Store the matrix and print it
+    rho_lin_inv_matrices{k} = rho_lin_inv;
+    disp(rho_lin_inv);
+    fprintf('\n'); % Print an empty line for separation
+end
+
+% The results are now stored in the cell array rho_lin_inv_matrices.
+
+% To access the first calculated matrix:
+% rho_A = rho_lin_inv_matrices{1};
+
+% MAXIMUM-LIKELIHOOD ESTIMATION
+
+rho_mle_matrices = maximum_likelihood_estimation(N_values, N_names, gammas);
+
+% FIDELITY
+
+computer_fidelity

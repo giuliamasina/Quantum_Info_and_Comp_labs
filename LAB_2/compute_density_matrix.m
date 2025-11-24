@@ -140,7 +140,7 @@ for nu = 1:num_configurations
     psi_states(:, nu) = psi; 
 end
 
-num_sets = size(N_values, 3); % Number of columns is the number of data sets
+num_sets = size(N_values, 2); % Number of columns is the number of data sets
 rho_lin_inv_matrices = cell(1, num_sets);
 
 for k = 1:num_sets
@@ -174,4 +174,10 @@ end
 % To access the first calculated matrix:
 % rho_A = rho_lin_inv_matrices{1};
 
+% MAXIMUM-LIKELIHOOD ESTIMATION
 
+rho_mle_matrices = maximum_likelihood_estimation(N_values, N_names, gammas);
+
+% FIDELITY
+
+compute_fidelity(rho_mle_matrices);
