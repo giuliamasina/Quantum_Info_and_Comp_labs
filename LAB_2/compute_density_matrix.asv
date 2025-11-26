@@ -180,4 +180,8 @@ rho_mle_matrices = maximum_likelihood_estimation(N_values, N_names, gammas);
 
 % FIDELITY
 
-computer_fidelity
+compute_fidelity(rho_mle_matrices);
+
+% VON-NEUMANN ENTROPY
+
+
