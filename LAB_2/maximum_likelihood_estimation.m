@@ -85,7 +85,7 @@ function t_opt = optimize_variables(N, gammas)
     
     % The objective function for fminsearch is the likelihood (Chi-Squared), 
     % which we want to MINIMIZE.
-    objective_fun = @(t) likelihood(t, N, gammas);
+    objective_fun = @(t) -likelihood(t, N, gammas);
 
     options = optimset('MaxFunEvals', 10000, 'MaxIter', 10000);
 

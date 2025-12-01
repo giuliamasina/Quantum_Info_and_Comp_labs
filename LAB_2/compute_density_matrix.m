@@ -184,5 +184,9 @@ compute_fidelity(rho_mle_matrices);
 
 % VON-NEUMANN ENTROPY
 
-vonneumann_entropy(rho_lin_inv_matrices);
+vonneumann_entropy(rho_mle_matrices);
+
+% CONCURRENCE
+
+concurrence(rho_mle_matrices)
 
