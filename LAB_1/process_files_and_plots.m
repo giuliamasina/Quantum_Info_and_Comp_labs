@@ -5,9 +5,13 @@
     files_names = {files.name};
     numFiles = 16;
 
-    final_results = table('Size', [numFiles, 2], ...
-                     'VariableTypes', {'string', 'double'}, ...
-                     'VariableNames', {'File', 'Coincidences'});
+%     final_results = table('Size', [numFiles, 2], ...
+%                      'VariableTypes', {'string', 'double'}, ...
+%                      'VariableNames', {'File', 'Coincidences'});
+
+    final_results = table('Size', [numFiles, 6], ...
+                     'VariableTypes', {'string', 'double', 'double', 'double', 'double', 'double'}, ...
+                     'VariableNames', {'File', 'Coincidences','X','Y','A','B'});
     
     k = 1;
     for x=[0,1]
@@ -21,6 +25,10 @@
                     disp(coincidences);
                     final_results.File(k) = file;
                     final_results.Coincidences(k) = coincidences;
+                    final_results.X(k) = x;
+                    final_results.Y(k) = y;
+                    final_results.A(k) = a;
+                    final_results.B(k) = b;
                     k = k + 1;
                 end
             end
@@ -151,82 +159,91 @@
 
 
 
-    for i = 1:4:num_counts
-        block_coincidences = coincidence_counts(i : i+3);
-        
-        if length(block_coincidences) < 4
-            warning('Incomplete block found starting at index %d. Skipping.', i);
-            continue;
-        end
-        
-        Npp = block_coincidences(1); 
-        Npm = block_coincidences(2); 
-        Nmp = block_coincidences(3); 
-        Nmm = block_coincidences(4); 
-        N_i = block_coincidences; % Vector of [Npp, Npm, Nmp, Nmm]
-        
-        N_total = sum(N_i);
-        if N_total == 0
-            warning('Total count in block starting at index %d is zero. Skipping.', i);
-            continue;
-        end
-        
-        % Define the coefficients for the numerator of each E term: [dE/dNpp, dE/dNpm, dE/dNmp, dE/dNmm]
-        % Coefficients U_ab, U_abp, U_apb, U_apbp
-        
-        U_ab_coeffs   = [ 1, -1, -1,  1]; % (Npp - Npm - Nmp + Nmm)
-        U_abp_coeffs  = [ 1, -1,  1, -1]; % (Npp - Npm + Nmp - Nmm)
-        U_apb_coeffs  = [ 1,  1, -1, -1]; % (Npp + Npm - Nmp - Nmm)
-        U_apbp_coeffs = [ 1,  1,  1,  1]; % (Npp + Npm + Nmp + Nmm) -- NOTE: This is N_total
-        
-        % --- Calculate E values ---
-        U_ab_num   = sum(U_ab_coeffs   .* N_i');
-        U_abp_num  = sum(U_abp_coeffs  .* N_i');
-        U_apb_num  = sum(U_apb_coeffs  .* N_i');
-        U_apbp_num = sum(U_apbp_coeffs .* N_i');
-        
-        E_ab   = U_ab_num   / N_total;
-        E_abp  = U_abp_num  / N_total;
-        E_apb  = U_apb_num  / N_total;
-        E_apbp = U_apbp_num / N_total;
-    
-        % --- Calculate Delta E (Rigorous Gaussian Propagation) ---
-        
-        % 1. Calculate the partial derivatives (dE/dN_i) for each E term
-        % General form of partial derivative vector for E = U/V: (1/V^2) * [ dU/dN_i * V - U ]
-        
-        % For E_ab:
-        dE_ab_dN = ( (U_ab_coeffs * N_total) - U_ab_num ) / N_total^2;
-        % For E_abp:
-        dE_abp_dN = ( (U_abp_coeffs * N_total) - U_abp_num ) / N_total^2;
-        % For E_apb:
-        dE_apb_dN = ( (U_apb_coeffs * N_total) - U_apb_num ) / N_total^2;
-        % For E_apbp:
-        dE_apbp_dN = ( (U_apbp_coeffs * N_total) - U_apbp_num ) / N_total^2;
-        
-        
-        % 2. Apply Gaussian Error Propagation: Delta E = sqrt( sum( (dE/dN_i)^2 * N_i ) )
-        
-        delta_E_ab = sqrt( sum( (dE_ab_dN.^2) .* N_i' ) );
-        delta_E_abp = sqrt( sum( (dE_abp_dN.^2) .* N_i' ) );
-        delta_E_apb = sqrt( sum( (dE_apb_dN.^2) .* N_i' ) );
-        delta_E_apbp = sqrt( sum( (dE_apbp_dN.^2) .* N_i' ) );
-        
-        E_delta_values = [delta_E_ab, delta_E_abp, delta_E_apb, delta_E_apbp];
-        
-        % 3. Compute S and Delta S
-        S = E_ab + E_abp + E_apb - E_apbp; % CHSH Parameter
-        
-        % Delta S is the quadrature sum of the Delta E's (standard error propagation for sum/difference)
-        delta_S = sqrt(sum(E_delta_values.^2));
-        
-        % Store the computed values
-        S_values = [S_values; S];
-        dS_values = [dS_values; delta_S];
-    end
+%     for i = 1:4:num_counts
+%         block_coincidences = coincidence_counts(i : i+3);
+%         
+%         if length(block_coincidences) < 4
+%             warning('Incomplete block found starting at index %d. Skipping.', i);
+%             continue;
+%         end
+%         
+%         Npp = block_coincidences(1); 
+%         Npm = block_coincidences(2); 
+%         Nmp = block_coincidences(3); 
+%         Nmm = block_coincidences(4); 
+%         N_i = block_coincidences; % Vector of [Npp, Npm, Nmp, Nmm]
+%         
+%         N_total = sum(N_i);
+%         if N_total == 0
+%             warning('Total count in block starting at index %d is zero. Skipping.', i);
+%             continue;
+%         end
+%         
+%         % Define the coefficients for the numerator of each E term: [dE/dNpp, dE/dNpm, dE/dNmp, dE/dNmm]
+%         % Coefficients U_ab, U_abp, U_apb, U_apbp
+%         
+%         U_ab_coeffs   = [ 1, -1, -1,  1]; % (Npp - Npm - Nmp + Nmm)
+%         U_abp_coeffs  = [ 1, -1,  1, -1]; % (Npp - Npm + Nmp - Nmm)
+%         U_apb_coeffs  = [ 1,  1, -1, -1]; % (Npp + Npm - Nmp - Nmm)
+%         U_apbp_coeffs = [ 1,  1,  1,  1]; % (Npp + Npm + Nmp + Nmm) -- NOTE: This is N_total
+%         
+%         % --- Calculate E values ---
+%         U_ab_num   = sum(U_ab_coeffs   .* N_i');
+%         U_abp_num  = sum(U_abp_coeffs  .* N_i');
+%         U_apb_num  = sum(U_apb_coeffs  .* N_i');
+%         U_apbp_num = sum(U_apbp_coeffs .* N_i');
+%         
+%         E_ab   = U_ab_num   / N_total;
+%         E_abp  = U_abp_num  / N_total;
+%         E_apb  = U_apb_num  / N_total;
+%         E_apbp = U_apbp_num / N_total;
+%     
+%         % --- Calculate Delta E (Rigorous Gaussian Propagation) ---
+%         
+%         % 1. Calculate the partial derivatives (dE/dN_i) for each E term
+%         % General form of partial derivative vector for E = U/V: (1/V^2) * [ dU/dN_i * V - U ]
+%         
+%         % For E_ab:
+%         dE_ab_dN = ( (U_ab_coeffs * N_total) - U_ab_num ) / N_total^2;
+%         % For E_abp:
+%         dE_abp_dN = ( (U_abp_coeffs * N_total) - U_abp_num ) / N_total^2;
+%         % For E_apb:
+%         dE_apb_dN = ( (U_apb_coeffs * N_total) - U_apb_num ) / N_total^2;
+%         % For E_apbp:
+%         dE_apbp_dN = ( (U_apbp_coeffs * N_total) - U_apbp_num ) / N_total^2;
+%         
+%         
+%         % 2. Apply Gaussian Error Propagation: Delta E = sqrt( sum( (dE/dN_i)^2 * N_i ) )
+%         
+%         delta_E_ab = sqrt( sum( (dE_ab_dN.^2) .* N_i' ) );
+%         delta_E_abp = sqrt( sum( (dE_abp_dN.^2) .* N_i' ) );
+%         delta_E_apb = sqrt( sum( (dE_apb_dN.^2) .* N_i' ) );
+%         delta_E_apbp = sqrt( sum( (dE_apbp_dN.^2) .* N_i' ) );
+%         
+%         E_delta_values = [delta_E_ab, delta_E_abp, delta_E_apb, delta_E_apbp];
+%         
+%         % 3. Compute S and Delta S
+%         S = E_ab + E_abp + E_apb - E_apbp; % CHSH Parameter
+%         
+%         % Delta S is the quadrature sum of the Delta E's (standard error propagation for sum/difference)
+%         delta_S = sqrt(sum(E_delta_values.^2));
+%         
+%         % Store the computed values
+%         S_values = [S_values; S];
+%         dS_values = [dS_values; delta_S];
+%    end
 
-    S_final = sum(S_values);
-    dS_final = sqrt(sum(dS_values.^2)); 
+    [mean_x0y0, variance_x0y0] = mean_and_variance(final_results, 0, 0);
+    [mean_x0y1, variance_x0y1] = mean_and_variance(final_results, 0, 1);
+    [mean_x1y0, variance_x1y0] = mean_and_variance(final_results, 1, 0);
+    [mean_x1y1, variance_x1y1] = mean_and_variance(final_results, 1, 1);
+
+
+
+
+    dS_final = sqrt(variance_x0y0 + variance_x0y1 + variance_x1y0 + variance_x1y1); 
+
+    S_final = mean_x0y0 + mean_x0y1 + mean_x1y0 - mean_x1y1;
 
     fprintf('S = %.3f ± %.3f\n', S_final, dS_final);
 
