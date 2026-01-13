@@ -6,7 +6,7 @@ function t_opt = optimize_variables(N, gammas)
     % which we want to MINIMIZE.
     objective_fun = @(t) -likelihood(t, N, gammas);
 
-    options = optimset('MaxFunEvals', 10000, 'MaxIter', 10000);
+    options = optimset('MaxFunEvals', 2e5, 'MaxIter', 2e5);
 
     % Perform the optimization using the Nelder-Mead method
     t_opt = fminsearch(objective_fun, initial_guess, options);

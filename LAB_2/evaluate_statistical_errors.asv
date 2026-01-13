@@ -31,7 +31,7 @@ function evaluate_statistical_errors(rho_mle_matrices, N_values, N_names, gammas
                 N_mean = N_values(:, i);
                 % 1. Simulate counts (Poisson distribution)
                 % poissrnd(N) returns a vector of same size as N
-                simulated_counts = poissrnd(N_mean);
+                simulated_counts = poissrnd(N);
                 
                 % 2. Perform Maximum-Likelihood estimation
                 t_optimum   = optimize_variables(simulated_counts, gammas);
@@ -60,8 +60,8 @@ function evaluate_statistical_errors(rho_mle_matrices, N_values, N_names, gammas
 %     end
 
     % "Calculate the statistical errors as the standard deviations of the simulated results"
-    fidelity_errors    = std(simulated_fidelities, 0, 1);    % 0=norm, 1=along columns
-    concurrence_errors = std(simulated_concurrences, 0, 1);
+    fidelity_errors    = std(sim_fidelities, 0, 1);    % 0=norm, 1=along columns
+    concurrence_errors = std(sim_concurrences, 0, 1);
     
     % --- Print the Results ---
     fprintf('=== Simulation Results ===\n');
@@ -75,7 +75,7 @@ function evaluate_statistical_errors(rho_mle_matrices, N_values, N_names, gammas
         fprintf('\n');
         
         fprintf('  Concurrence errors:');
-        fprintf('%.5f  ', concurrence_errors(N_index));
+        fprintf('%.5f  ', concurrence_errors(N_index});
         fprintf('\n\n');
     end
 

@@ -188,5 +188,9 @@ vonneumann_entropy(rho_mle_matrices);
 
 % CONCURRENCE
 
-concurrence(rho_mle_matrices)
+concurrence(rho_mle_matrices);
+
+% STATISTICAL ERRORS
+
+evaluate_statistical_errors(rho_mle_matrices, N_values, N_names, gammas);
 
