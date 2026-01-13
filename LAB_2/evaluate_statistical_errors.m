@@ -1,0 +1,73 @@
+function evaluate_statistical_errors(rho_mle_matrices, N_values, N_names)
+
+    num_simulations = 200;
+    num_N    = length(N_names);           % Number of datasets (3 in this case)
+    num_sets = length(rho_mle_matrices);  % Number of rho matrices (3 in your example)
+    
+    % --- Pre-allocate Storage ---
+    simulated_fidelities   = cell(1, num_N);
+    simulated_concurrences = cell(1, num_N);
+    
+    for k = 1:num_N
+        % Each cell holds a matrix: (Rows = Simulations, Cols = rho_mle matrices)
+        simulated_fidelities{k}   = zeros(num_simulations, num_sets);
+        simulated_concurrences{k} = zeros(num_simulations, num_sets);
+    end
+    
+    % --- Main Simulation Loop ---
+    for sim_idx = 1:num_simulations
+        for N_index = 1:num_N
+            % Extract the specific column of mean counts for this dataset
+            % N here is a vector of mean counts (e.g., tomography counts)
+            N = N_values(:, N_index);
+            
+            for i = 1:num_sets
+                % 1. Simulate counts (Poisson distribution)
+                % poissrnd(N) returns a vector of same size as N
+                simulated_counts = poissrnd(N);
+                
+                % 2. Perform Maximum-Likelihood estimation
+                t_optimum   = optimize_variables(simulated_counts);
+                rho_mle_sim = compute_rho_mle(t_optimum);
+                
+                % 3. Compute fidelities
+                rho_target   = rho_mle_matrices{i};
+                fidelity_mle = compute_fidelity(rho_mle_sim, rho_target);
+                simulated_fidelities{N_index}(sim_idx, i) = fidelity_mle;
+                
+                % 4. Compute concurrences
+                concurrence_mle = concurrence(rho_mle_sim);
+                simulated_concurrences{N_index}(sim_idx, i) = concurrence_mle;
+            end
+        end
+    end
+    
+    % --- Calculate Statistical Errors ---
+    % Compute Standard Deviation across simulations (dim 1)
+    fidelity_errors    = cell(1, num_N);
+    concurrence_errors = cell(1, num_N);
+    
+    for k = 1:num_N
+        fidelity_errors{k}    = std(simulated_fidelities{k}, 0, 1);
+        concurrence_errors{k} = std(simulated_concurrences{k}, 0, 1);
+    end
+    
+    % --- Print the Results ---
+    fprintf('=== Simulation Results ===\n');
+    for N_index = 1:num_N
+        current_name = N_names{N_index};
+        
+        fprintf('Dataset: %s\n', current_name);
+        
+        fprintf('  Fidelity errors:   ');
+        fprintf('%.5f  ', fidelity_errors{N_index});
+        fprintf('\n');
+        
+        fprintf('  Concurrence errors:');
+        fprintf('%.5f  ', concurrence_errors{N_index});
+        fprintf('\n\n');
+    end
+
+
+
+end
