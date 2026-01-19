@@ -4,12 +4,13 @@
 I0 = max(WaveplateA.coincidences) - min(WaveplateA.coincidences);
 [~, idx] = min(WaveplateA.coincidences);
 theta0 = WaveplateA.angles(idx);
-offset = min(WaveplateA.coincidences)
+offset = min(WaveplateA.coincidences);
 
-% Define custom fit type (Malus' Law)
+% custom fit type (Malus' Law) 
 ft = fittype('I0 * cosd(2*(x - theta0)).^2 + offset','independent', 'x');
 startingValues = [I0, theta0, offset];
-fittedModel = fit(WaveplateA.angles, WaveplateA.coincidences, ft, StartPoint=startingValues);
+fittedModel = fit(WaveplateA.angles, WaveplateA.coincidences, ...
+    ft, StartPoint=startingValues);
 
 angle_range = linspace(min(WaveplateA.angles),max(WaveplateA.angles),2000);
 modelEval = feval(fittedModel, angle_range);

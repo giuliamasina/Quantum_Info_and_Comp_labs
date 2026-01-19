@@ -1,3 +1,5 @@
+
+
 function [mean, variance] = mean_and_variance(data, X, Y)
 
     reduced_data = data(data.X == X & data.Y == Y, :);
@@ -8,11 +10,9 @@ function [mean, variance] = mean_and_variance(data, X, Y)
     Nmm = reduced_data(reduced_data.A == 1 & reduced_data.B == 1, :).Coincidences;
 
     mean = (Npp + Nmm - Npm - Nmp)/N_total;
-    term1_numerator = (N_total - mean)^2 * (Npp + Nmm);
-    term2_numerator = (N_total + mean)^2 * (Npm + Nmp);
-    denominator = N_total^4;
-    
-    % 3. Compute the variance
-    variance = (term1_numerator + term2_numerator) / denominator;
+    variance = (1 - mean^2) / N_total;
 
 end
+
+
+

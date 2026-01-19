@@ -238,9 +238,6 @@
     [mean_x1y0, variance_x1y0] = mean_and_variance(final_results, 1, 0);
     [mean_x1y1, variance_x1y1] = mean_and_variance(final_results, 1, 1);
 
-
-
-
     dS_final = sqrt(variance_x0y0 + variance_x0y1 + variance_x1y0 + variance_x1y1); 
 
     S_final = mean_x0y0 + mean_x0y1 + mean_x1y0 - mean_x1y1;

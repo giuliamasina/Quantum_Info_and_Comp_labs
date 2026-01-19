@@ -1,7 +1,7 @@
 
-coinc_phi_p = Cartel2.coinc_phi_p;
-coinc_phi_m = Cartel2.coinc_phi_m;
-coinc_dec = Cartel2.coinc_dec;
+coinc_phi_p = Lab2data.coinc_phi_p;
+coinc_phi_m = Lab2data.coinc_phi_m;
+coinc_dec = Lab2data.coinc_dec;
 
 N_values = [coinc_phi_m, coinc_phi_p, coinc_dec];
 N_names = {'coinc_phi_m','coinc_phi_p','coinc_dec'};
