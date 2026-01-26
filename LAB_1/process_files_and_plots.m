@@ -1,6 +1,7 @@
 % this script will calculate the results for the CHSH evaluation
 
-    folderPath = 'C:\Users\Hp\Documents\MATLAB\Examples\R2022b\matlab\Quantum\data_Old\';
+    %folderPath = 'C:\Users\Hp\Documents\MATLAB\Examples\R2022b\matlab\Quantum\data_Old\';
+    folderPath = 'data_Old\';
     files = dir(fullfile(folderPath, '*.txt'));
     files_names = {files.name};
     numFiles = 16;

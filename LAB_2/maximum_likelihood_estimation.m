@@ -6,21 +6,19 @@ function rho_mle_matrices = maximum_likelihood_estimation(N_values, N_names, gam
     disp('-----------------------------------------------');
 
     for k = 1:num_sets
-        %N = N_values{k};
-        %N_name = N_names{k};
 
         N = N_values(:, k); 
         N_name = N_names{k};
         
         fprintf('Processing: **%s**\n', N_name);
         
-        % Perform Optimization
+        % optimization
         t_optimum = optimize_variables(N, gammas);
         
-        % Compute Final Density Matrix
+        % compute final density matrix
         rho_mle = compute_rho_mle(t_optimum);
         
-        % Check Physicality
+        % check physicality
         if is_density_matrix(rho_mle)
             disp('The density matrix after MLE is **physical** (positive semi-definite and trace 1).');
         else
@@ -36,11 +34,3 @@ function rho_mle_matrices = maximum_likelihood_estimation(N_values, N_names, gam
     
 
 end
-
-% define the matrix T(t
-
-% define the function to compute rho_mle
-
-% define the function to compute the likelihood (Chi-Squared Cost Function)
-
-% define the function to find the optimum set of variables (MLE)

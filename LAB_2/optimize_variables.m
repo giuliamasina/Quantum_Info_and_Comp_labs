@@ -1,5 +1,7 @@
 function t_opt = optimize_variables(N, gammas)
     % Initial guess for the 16 variables (t1 to t16).
+    
+    %initial_guess = rho_lin_inv_matrix;
     initial_guess = randn(16, 1); 
     
     % The objective function for fminsearch is the likelihood (Chi-Squared), 

@@ -1,69 +1,43 @@
 function evaluate_statistical_errors(rho_mle_matrices, N_values, N_names, gammas)
 
-    num_simulations = 200;
-    num_N = length(N_names);           % Number of datasets (3 in this case)
-    num_sets = length(rho_mle_matrices);  % Number of rho matrices (3 in your example)
+    num_simulations = 150;
+    num_N = length(N_names);         
+    %num_sets = length(rho_mle_matrices);  
     
-    % --- Pre-allocate Storage ---
-%     simulated_fidelities   = cell(1, num_N);
-%     simulated_concurrences = cell(1, num_N);
-%     
-%     for k = 1:num_N
-%         % Each cell holds a matrix: (Rows = Simulations, Cols = rho_mle matrices)
-%         simulated_fidelities{k}   = zeros(num_simulations, num_sets);
-%         simulated_concurrences{k} = zeros(num_simulations, num_sets);
-%     end
-    % We store results in matrices: (Rows = Simulations, Cols = Datasets)
     simulated_fidelities   = zeros(num_simulations, num_N);
     simulated_concurrences = zeros(num_simulations, num_N);
     
-    % --- Main Simulation Loop ---
     for sim_idx = 1:num_simulations
-        fprintf("Progress: %d", sim_idx);
-        fprintf('\n');
-%         for N_index = 1:num_N
-%             % Extract the specific column of mean counts for this dataset
-%             % N here is a vector of mean counts (e.g., tomography counts)
-%             N = N_values(:, N_index);
+            if mod(sim_idx, 10) == 0
+                fprintf("Progress: %d", sim_idx);
+                fprintf('\n');
+            end
             
             for i = 1:num_N
-                % A. Get the Mean ("experimental data")
+                % mean
                 N_mean = N_values(:, i);
-                % 1. Simulate counts (Poisson distribution)
-                % poissrnd(N) returns a vector of same size as N
                 simulated_counts = poissrnd(N_mean);
                 
-                % 2. Perform Maximum-Likelihood estimation
+                % MLE
                 t_optimum   = optimize_variables(simulated_counts, gammas);
                 rho_mle_sim = compute_rho_mle(t_optimum);
                 
-                % 3. Compute fidelities
+                %fidelities
                 rho_target   = rho_mle_matrices{i};
                 fidelity_mle = fidelity_for_statistical_errors(rho_mle_sim, rho_target);
                 simulated_fidelities(sim_idx, i) = fidelity_mle;
                 
-                % 4. Compute concurrences
+                % concurrences
                 concurrence_mle = compute_concurrence(rho_mle_sim);
                 simulated_concurrences(sim_idx, i) = concurrence_mle;
             end
-%        end
     end
     
-    % --- Calculate Statistical Errors ---
-    % Compute Standard Deviation across simulations (dim 1)
-%     fidelity_errors    = cell(1, num_N);
-%     concurrence_errors = cell(1, num_N);
-%     
-%     for k = 1:num_N
-%         fidelity_errors{k}    = std(simulated_fidelities{k}, 0, 1);
-%         concurrence_errors{k} = std(simulated_concurrences{k}, 0, 1);
-%     end
 
-    % "Calculate the statistical errors as the standard deviations of the simulated results"
-    fidelity_errors    = std(simulated_fidelities, 0, 1);    % 0=norm, 1=along columns
+    % calculate the statistical errors as the standard deviations of the simulated results"
+    fidelity_errors    = std(simulated_fidelities, 0, 1);    
     concurrence_errors = std(simulated_concurrences, 0, 1);
     
-    % --- Print the Results ---
     fprintf('=== Simulation Results ===\n');
     for N_index = 1:num_N
         current_name = N_names{N_index};

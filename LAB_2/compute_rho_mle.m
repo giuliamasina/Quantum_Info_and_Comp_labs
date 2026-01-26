@@ -1,7 +1,16 @@
 function rho_mle = compute_rho_mle(t)
     T = T_matrix(t);
-    % T' in MATLAB is the Hermitian conjugate (T_dagger)
-    T_dagger_T = T' * T; 
-    % Normalization: rho_mle = T_dagger_T / trace(T_dagger_T)
-    rho_mle = T_dagger_T / trace(T_dagger_T); 
+    
+    normalization_factor = sqrt(trace(T' * T));   
+    %check for division by zero
+    if normalization_factor < 1e-10
+        rho_mle = eye(4)/4; 
+        return;
+    end
+    
+    % normalize T 
+    T_norm = T / normalization_factor;
+    
+    % compute rho
+    rho_mle = T_norm' * T_norm; 
 end

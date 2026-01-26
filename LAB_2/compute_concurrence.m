@@ -10,9 +10,9 @@ function concur = compute_concurrence(rho)
     omega_hat = sqrtm(M);
     eigenvalues_full = eig(omega_hat);
     eigenvalues = real(eigenvalues_full);
-    eigenvalues(eigenvalues < 0) = 0; % Set negative to zero
+    eigenvalues(eigenvalues < 0) = 0; % set negative to zero
     eigenvalues = eigenvalues / sum(eigenvalues); % Non-standard normalization
-    eigenvalues = sort(eigenvalues, 'descend'); % Sort descending
+    eigenvalues = sort(eigenvalues, 'descend'); % sort descending
     concur = max(0, eigenvalues(1) - eigenvalues(2) - eigenvalues(3) - eigenvalues(4));
 
 end
